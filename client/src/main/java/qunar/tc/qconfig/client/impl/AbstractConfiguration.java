@@ -26,7 +26,7 @@ public abstract class AbstractConfiguration<T> implements Configuration<T> {
 
     private final InitFuture future = new InitFuture();
 
-    private final CopyOnWriteArraySet<ConfigListener<T>> listeners = new CopyOnWriteArraySet<ConfigListener<T>>();
+    private final CopyOnWriteArraySet<ConfigListener<T>> listeners = new CopyOnWriteArraySet<>();
 
     protected final AtomicReference<T> current = new AtomicReference<T>();
 

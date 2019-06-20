@@ -20,7 +20,7 @@ public class Feature {
 
         private boolean trimValue = true;
 
-        //是否采用https访问，默认关闭
+        // 是否采用https访问，默认关闭
         private boolean httpsEnable = false;
 
         public Builder autoReload(boolean autoReload) {

@@ -37,12 +37,7 @@ public class MapConfig extends AbstractConfiguration<Map<String, String>> {
 
     private static final MapConfigParameterReplaceTool replaceTool = MapConfigParameterReplaceTool.getInstance();
 
-    private static final DataLoader.Generator gen = new DataLoader.Generator<Map<String, String>>() {
-        @Override
-        public AbstractConfiguration<Map<String, String>> create(Feature feature, String fileName) {
-            return new MapConfig(feature, fileName);
-        }
-    };
+    private static final DataLoader.Generator gen = (DataLoader.Generator<Map<String, String>>) MapConfig::new;
 
     // 文件内容有改变的时候才会触发
     public interface PropertiesChangeListener {
@@ -188,7 +183,7 @@ public class MapConfig extends AbstractConfiguration<Map<String, String>> {
 
     }
 
-    //用户拿到这个引用，每次配置变更，这个引用里面的数据也会变
+    // 用户拿到这个引用，每次配置变更，这个引用里面的数据也会变
     private final DynamicMap ref = new DynamicMap(current);
 
     @Override

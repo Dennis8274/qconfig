@@ -32,19 +32,9 @@ public class PublishingReleaseStatus extends AbstractReleaseStatus {
         int publishingBatchNum = statusInfo.getFinishedBatchNum() + 1;
         final List<Host> machines = statusInfo.getBatches().get(publishingBatchNum);
         preparePush(machines);
-        ListenableFuture<?> f1 = executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                push(machines);
-            }
-        });
+        ListenableFuture<?> f1 = executor.submit(() -> push(machines));
 
-        ListenableScheduledFuture<?> f2 = executor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                push(machines);
-            }
-        }, DELAY_TIME_MS, TimeUnit.MILLISECONDS);
+        ListenableScheduledFuture<?> f2 = executor.schedule(() -> push(machines), DELAY_TIME_MS, TimeUnit.MILLISECONDS);
 
         ListenableFuture<List<Object>> workFuture = Futures.successfulAsList(f1, f2);
         workFuture.addListener(new Runnable() {

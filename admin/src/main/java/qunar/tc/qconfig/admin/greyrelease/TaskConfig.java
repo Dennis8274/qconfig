@@ -2,7 +2,6 @@ package qunar.tc.qconfig.admin.greyrelease;
 
 import qunar.tc.qconfig.admin.cloud.vo.ConfigMetaVersion;
 import qunar.tc.qconfig.admin.model.Host;
-import qunar.tc.qconfig.servercommon.bean.VersionData;
 
 import java.util.List;
 import java.util.Map;

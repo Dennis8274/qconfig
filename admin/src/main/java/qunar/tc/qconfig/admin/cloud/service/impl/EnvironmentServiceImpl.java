@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 public class EnvironmentServiceImpl implements EnvironmentService {
 
-    Logger logger = LoggerFactory.getLogger(EnvironmentServiceImpl.class);
+    private Logger logger = LoggerFactory.getLogger(EnvironmentServiceImpl.class);
 
     private final static String DEFAULT_ENVS = "defaultEnvs";
 

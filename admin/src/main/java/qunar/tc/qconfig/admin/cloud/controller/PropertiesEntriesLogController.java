@@ -1,6 +1,5 @@
 package qunar.tc.qconfig.admin.cloud.controller;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -45,12 +44,7 @@ public class PropertiesEntriesLogController extends AbstractControllerHelper {
                                         @RequestParam(required = false, defaultValue = "15") int pageSize) {
         // 参数group/profile/dataId/key非空时，为精确搜索条件, 若为空则用*Like参数做模糊搜索
         Set<String> accessibleGroups = userContext.getAccessibleGroups();
-        Set<String> validGroups = Sets.filter(accessibleGroups, new Predicate<String>() {
-            @Override
-            public boolean apply(String input) {
-                return Strings.isNullOrEmpty(group) ? input.contains(groupLike) : input.equals(group);
-            }
-        });
+        Set<String> validGroups = Sets.filter(accessibleGroups, input -> Strings.isNullOrEmpty(group) ? input.contains(groupLike) : input.equals(group));
         try {
             return JsonV2.successOf(
                     propertiesEntryLogService.listEntries(

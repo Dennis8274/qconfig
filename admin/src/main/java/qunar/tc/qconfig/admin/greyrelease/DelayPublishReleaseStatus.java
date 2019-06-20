@@ -4,10 +4,8 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import qunar.tc.qconfig.admin.cloud.vo.ConfigMetaVersion;
 import qunar.tc.qconfig.admin.dao.ConfigUsedLogDao;
-import qunar.tc.qconfig.admin.model.ConfigUsedLog;
 import qunar.tc.qconfig.admin.model.Host;
 import qunar.tc.qconfig.admin.service.ListeningClientsService;
 import qunar.tc.qconfig.admin.service.NotifyService;
@@ -18,9 +16,7 @@ import qunar.tc.qconfig.servercommon.bean.ConfigMeta;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author zhenyu.nie created on 2018 2018/5/23 13:08
@@ -45,21 +41,15 @@ public class DelayPublishReleaseStatus extends AbstractReleaseStatus {
         if (delayMs <= 0) {
             return workNow();
         } else {
-            return executor.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    accept(Command.next);
-                }
+            return executor.schedule(() -> {
+                accept(Command.next);
             }, delayMs, TimeUnit.MILLISECONDS);
         }
     }
 
     private ListenableFuture<?> workNow() {
-        return executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                accept(Command.next);
-            }
+        return executor.submit(() -> {
+            accept(Command.next);
         });
     }
 

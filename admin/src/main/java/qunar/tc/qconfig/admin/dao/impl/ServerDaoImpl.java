@@ -1,18 +1,14 @@
 package qunar.tc.qconfig.admin.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import qunar.tc.qconfig.admin.dao.ServerDao;
-import qunar.tc.qconfig.admin.model.DbEnv;
-import qunar.tc.qconfig.admin.model.JdbcTemplateDelegated;
 
 import javax.annotation.Resource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by dongcao on 2018/7/2.

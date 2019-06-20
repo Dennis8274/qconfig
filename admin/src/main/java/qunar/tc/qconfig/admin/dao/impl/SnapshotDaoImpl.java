@@ -1,16 +1,11 @@
 package qunar.tc.qconfig.admin.dao.impl;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 import qunar.tc.qconfig.admin.dao.SnapshotDao;
-import qunar.tc.qconfig.admin.dto.CandidateDTO;
-import qunar.tc.qconfig.admin.model.DbOpType;
-import qunar.tc.qconfig.admin.model.JdbcTemplateDelegated;
 import qunar.tc.qconfig.admin.support.IntArrayUtil;
 import qunar.tc.qconfig.common.bean.CandidateSnapshot;
 import qunar.tc.qconfig.common.util.ChecksumAlgorithm;
@@ -18,13 +13,11 @@ import qunar.tc.qconfig.servercommon.bean.ChecksumData;
 import qunar.tc.qconfig.servercommon.bean.ConfigMeta;
 import qunar.tc.qconfig.servercommon.bean.VersionData;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: zhaohuiyu

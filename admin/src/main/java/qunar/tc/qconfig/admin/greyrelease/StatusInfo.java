@@ -1,7 +1,6 @@
 package qunar.tc.qconfig.admin.greyrelease;
 
 import qunar.tc.qconfig.admin.model.Host;
-import qunar.tc.qconfig.servercommon.bean.ConfigMeta;
 
 import java.util.Date;
 import java.util.List;

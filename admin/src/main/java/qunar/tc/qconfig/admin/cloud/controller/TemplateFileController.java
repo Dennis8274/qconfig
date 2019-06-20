@@ -93,7 +93,7 @@ public class TemplateFileController extends AbstractControllerHelper {
         int newestVersion = fileTemplateService.getNewestTemplateVersion(templateGroup, template);
 
         java.util.Optional<String> optional = TemplateUtils.processTimeLongToStr(dataId, resultData, detail.get());
-        final String realData = optional.isPresent() ? optional.get() : resultData;
+        final String realData = optional.orElse(resultData);
         return JsonV2.successOf(ImmutableMap.of("data", realData, "templateDetail", detail.get(), "currentVersion", templateVersion,
                 "newestVersion", newestVersion));
     }

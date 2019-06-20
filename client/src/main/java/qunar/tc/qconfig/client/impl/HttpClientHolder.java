@@ -14,7 +14,6 @@ import qunar.tc.qconfig.common.support.concurrent.NamedThreadFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,12 +30,7 @@ public class HttpClientHolder {
         private static final int LONG_POLLING_TIMEOUT = 90000;
 
         private static AsyncHttpClient createHttpClient() {
-            HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("qconfig-timer"), new ThreadNameDeterminer() {
-                @Override
-                public String determineThreadName(String currentThreadName, String proposedThreadName) throws Exception {
-                    return "qconfig-timer #1";
-                }
-            }, 100, TimeUnit.MILLISECONDS, 512);
+            HashedWheelTimer timer = new HashedWheelTimer(new NamedThreadFactory("qconfig-timer"), (currentThreadName, proposedThreadName) -> "qconfig-timer #1", 100, TimeUnit.MILLISECONDS, 512);
             timer.start();
             AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
             builder.setConnectTimeout(CONN_TIMEOUT);
@@ -47,28 +41,21 @@ public class HttpClientHolder {
             builder.setPooledConnectionIdleTimeout(3 * 60 * 1000);
             builder.setAcceptAnyCertificate(true);
 
-            ExecutorService threadPool = Executors.newCachedThreadPool(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
-                    Thread t = new Thread(r, "qconfig-loader-callback");
-                    t.setDaemon(true);
-                    return t;
-                }
+            ExecutorService threadPool = Executors.newCachedThreadPool(r -> {
+                Thread t = new Thread(r, "qconfig-loader-callback");
+                t.setDaemon(true);
+                return t;
             });
             builder.setExecutorService(threadPool);
 
             NettyAsyncHttpProviderConfig providerConfig = new NettyAsyncHttpProviderConfig();
             providerConfig.setNettyTimer(timer);
-            NioClientBossPool bossPool = new NioClientBossPool(threadPool, BOSS_COUNT, timer, new ThreadNameDeterminer() {
-                @Override
-                public String determineThreadName(String currentThreadName, String proposedThreadName) throws Exception {
-                    return "qconfig-loader boss #1";
-                }
-            });
+            NioClientBossPool bossPool = new NioClientBossPool(threadPool, BOSS_COUNT, timer, (currentThreadName, proposedThreadName) -> "qconfig-loader boss #1");
             NioWorkerPool workerPool = new NioWorkerPool(threadPool, WORKER_COUNT, new ThreadNameDeterminer() {
                 private final AtomicInteger i = new AtomicInteger(0);
 
                 @Override
-                public String determineThreadName(String currentThreadName, String proposedThreadName) throws Exception {
+                public String determineThreadName(String currentThreadName, String proposedThreadName) {
                     return "qconfig-loader worker #" + i.incrementAndGet();
                 }
             });

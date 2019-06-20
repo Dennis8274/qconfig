@@ -76,11 +76,7 @@ public class GreyReleaseController extends AbstractControllerHelper {
         logger.info("query current task, group:[{}], dataId:[{}], profile:[{}]", group, dataId, profile);
         try {
             Optional<String> uuid = greyReleaseService.queryActiveTaskUUID(new ConfigMeta(group, dataId, profile));
-            if (uuid.isPresent()) {
-                return JsonV2.successOf("", ImmutableMap.of("uuid", uuid.get()));
-            } else {
-                return JsonV2.successOf(NO_CURRENT_TASK, "当前没有发布任务", null);
-            }
+            return uuid.map(s -> JsonV2.successOf("", ImmutableMap.of("uuid", s))).orElseGet(() -> JsonV2.successOf(NO_CURRENT_TASK, "当前没有发布任务", null));
         } catch (Exception e) {
             logger.error("查询当前任务失败,group:[{}], dataId:[{}], profile:[{}]", group, dataId, profile, e);
             return JsonV2.failOf("get current task error");

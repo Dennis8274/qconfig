@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import qunar.tc.qconfig.admin.cloud.enums.UserFavoriteType;
 import qunar.tc.qconfig.admin.dao.UserFavoritesDao;
 import qunar.tc.qconfig.admin.support.PaginationUtil;
-import qunar.tc.qconfig.common.bean.PaginationResult;
 import qunar.tc.qconfig.servercommon.bean.ConfigMeta;
 
 import javax.annotation.Resource;
@@ -84,29 +83,16 @@ public class UserFavoritesDaoImpl implements UserFavoritesDao {
         jdbcTemplate.update(DELETE_BY_META, meta.getGroup(), meta.getDataId(), meta.getProfile());
     }
 
-    private static final ResultSetExtractor<Integer> COUNT_EXTRACTOR = new ResultSetExtractor<Integer>() {
-        @Override
-        public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
-            if (rs.next()) {
-                return rs.getInt("count");
-            } else {
-                return 0;
-            }
+    private static final ResultSetExtractor<Integer> COUNT_EXTRACTOR = rs -> {
+        if (rs.next()) {
+            return rs.getInt("count");
+        } else {
+            return 0;
         }
     };
 
-    private static final RowMapper<String> FAVORITE_GROUPS_MAPPER = new RowMapper<String>() {
-        @Override
-        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getString("group_id");
-        }
-    };
+    private static final RowMapper<String> FAVORITE_GROUPS_MAPPER = (rs, rowNum) -> rs.getString("group_id");
 
-    private static final RowMapper<ConfigMeta> FAVORITE_FILES_MAPPER = new RowMapper<ConfigMeta>() {
-        @Override
-        public ConfigMeta mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new ConfigMeta(rs.getString("group_id"), rs.getString("data_id"), rs.getString("profile"));
-        }
-    };
+    private static final RowMapper<ConfigMeta> FAVORITE_FILES_MAPPER = (rs, rowNum) -> new ConfigMeta(rs.getString("group_id"), rs.getString("data_id"), rs.getString("profile"));
 }
 

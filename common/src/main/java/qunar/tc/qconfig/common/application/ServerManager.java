@@ -4,8 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import qunar.tc.qconfig.common.bean.AppServerConfig;
 import qunar.tc.qconfig.common.enums.AppServerType;
 import qunar.tc.qconfig.common.support.ServerLocalContextLoader;
@@ -14,13 +12,10 @@ import qunar.tc.qconfig.common.util.LocalHostUtil;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicReference;
 
-
 /**
  * miao.yang susing@gmail.com 2013-8-7
  */
 public class ServerManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ServerManager.class);
 
     private static ImmutableMap<String, String> appInfoMap = ImmutableMap.copyOf(ServerLocalContextLoader.loadLocalContext());
 
@@ -33,23 +28,20 @@ public class ServerManager {
 
     private static final AtomicReference<ServerManagement> INSTANCE = new AtomicReference<>();
 
-    private static final Supplier<ServerManagement> holder = Suppliers.memoize(new Supplier<ServerManagement>() {
-        @Override
-        public ServerManagement get() {
-            ServiceLoader<ServerManagement> managers = ServiceLoader.load(ServerManagement.class);
+    private static final Supplier<ServerManagement> holder = Suppliers.memoize(() -> {
+        ServiceLoader<ServerManagement> managers = ServiceLoader.load(ServerManagement.class);
 
-            ServerManagement instance = null;
-            for (ServerManagement registry : managers) {
-                instance = registry;
-                break;
-            }
-            if (instance == null) {
-                instance = new InnerServerManagerImpl();
-            }
-
-            INSTANCE.compareAndSet(null, instance);
-            return instance;
+        ServerManagement instance = null;
+        for (ServerManagement registry : managers) {
+            instance = registry;
+            break;
         }
+        if (instance == null) {
+            instance = new InnerServerManagerImpl();
+        }
+
+        INSTANCE.compareAndSet(null, instance);
+        return instance;
     });
 
     public static ServerManagement getInstance() {

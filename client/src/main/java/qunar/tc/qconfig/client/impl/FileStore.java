@@ -215,6 +215,7 @@ class FileStore<T> {
 
         T t;
         try {
+            // 文件格式转换
             t = conf.parse(data);
         } catch (Throwable e) {
             configLogger.log(ConfigLogType.PARSE_REMOTE_ERROR, meta, version.getVersion(), e);
@@ -224,15 +225,20 @@ class FileStore<T> {
         FileVersion current = currentVersion.get();
         FileVersion newVer = new FileVersion(FileVersion.Type.remote, version);
 
+        // 远程版本更新
         if (FileVersion.needUpdate(current, newVer) && currentVersion.compareAndSet(current, newVer)) {
 
+            // 是否在本地缓存
             if (storeAtLocal(snapshot)) {
+                // 缓存到内存中
                 saveToConfigRepository(meta, newVer.getVersion().getVersion(), data);
+                // 读取version file
                 File versionFile = getVersionFile();
+                // 将 version,profile 写入 app/file.ver2 文件
                 atomicWriteFile(versionFile, Long.toString(version.getVersion(), 10) + COMMA + version.getProfile());
             }
 
-            //触发配置变更逻辑
+            // 触发配置变更逻辑
             boolean success = conf.setData(t);
 
             log.info("use remote file, name={}, version={}", meta.getFileName(), version);
@@ -241,6 +247,7 @@ class FileStore<T> {
                 message = "listener error";
             }
             configLogger.log(ConfigLogType.USE_REMOTE_FILE, meta, version.getVersion(), message);
+            // 清理 filestore/app/qconfig/profile/group//snapshot2/file.version.profile 下的文件，只保留最近三个版本的文件
             purge(version);
             purgedFiles.remove(meta);
         }
@@ -446,7 +453,7 @@ class FileStore<T> {
     }
 
     static Map<Meta, VersionProfile> findAllFiles() {
-        Map<Meta, VersionProfile> map = new HashMap<Meta, VersionProfile>();
+        Map<Meta, VersionProfile> map = new HashMap<>();
         try {
             File[] files = CONF_HOME.listFiles();
             if (files == null) {
@@ -491,9 +498,12 @@ class FileStore<T> {
     }
 
     static void storeData(Meta meta, VersionProfile version, Snapshot<String> latestSnapshot) throws IOException {
+        // 内存当中保留一份最新的文件内容数据
         if (!storeMemory(meta, latestSnapshot)) return;
 
+        // 返回的snapshot可以指定是否在本地缓存
         if (storeAtLocal(latestSnapshot)) {
+            // 如果允许在本地缓存，那么写入本地磁盘
             final File file = FileStore.getSnapshotFile(version, meta.getGroupName(), meta.getFileName());
             atomicWriteFile(file, latestSnapshot.getContent());
         }

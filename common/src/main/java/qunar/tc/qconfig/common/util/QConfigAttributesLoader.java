@@ -26,39 +26,36 @@ public class QConfigAttributesLoader {
     private static final String SERVERAPP_KEY = "qconfig.server.app";
     private static final String REGISTER_SELF_ON_START_KEY = "qconfig.server.register_self_on_start";
 
-    private static final Supplier<QConfigAttributes> attrSupplier = Suppliers.memoize(new Supplier<QConfigAttributes>() {
-        @Override
-        public QConfigAttributes get() {
-            String resources = System.getProperty(RESOURCES_KEY, defaultPropertiesLoader.getDefaultValue(RESOURCES_KEY));
-            String buildGroup = System.getProperty(BUILDGROUP_KEY, defaultPropertiesLoader.getDefaultValue(BUILDGROUP_KEY));
-            String defaultAddresses = System.getProperty(DEFAULT_ADDRESS_KEY, defaultPropertiesLoader.getDefaultValue(DEFAULT_ADDRESS_KEY));
-            String defaultHttpsAddresses = System.getProperty(DEFAULT_HTTPS_ADDRESSES_KEY, defaultPropertiesLoader.getDefaultValue(DEFAULT_HTTPS_ADDRESSES_KEY));
-            String serverUrl = System.getProperty(SERVER_URL_key, defaultPropertiesLoader.getDefaultValue(SERVER_URL_key));
-            String adminUrl = System.getProperty(ADMIN_URL_KEY, defaultPropertiesLoader.getDefaultValue(ADMIN_URL_KEY));
-            String dev = System.getProperty(DEV_KEY, defaultPropertiesLoader.getDefaultValue(DEV_KEY));
-            String beta = System.getProperty(BETA_KEY, defaultPropertiesLoader.getDefaultValue(BETA_KEY));
-            String prod = System.getProperty(PROD_KEY, defaultPropertiesLoader.getDefaultValue(PROD_KEY));
-            String serverApp = System.getProperty(SERVERAPP_KEY, defaultPropertiesLoader.getDefaultValue(SERVERAPP_KEY));
-            boolean registerSelfOnStart = Boolean.valueOf(System.getProperty(REGISTER_SELF_ON_START_KEY, defaultPropertiesLoader.getDefaultValue(REGISTER_SELF_ON_START_KEY)));
+    private static final Supplier<QConfigAttributes> attrSupplier = Suppliers.memoize(() -> {
+        String resources = System.getProperty(RESOURCES_KEY, defaultPropertiesLoader.getDefaultValue(RESOURCES_KEY));
+        String buildGroup = System.getProperty(BUILDGROUP_KEY, defaultPropertiesLoader.getDefaultValue(BUILDGROUP_KEY));
+        String defaultAddresses = System.getProperty(DEFAULT_ADDRESS_KEY, defaultPropertiesLoader.getDefaultValue(DEFAULT_ADDRESS_KEY));
+        String defaultHttpsAddresses = System.getProperty(DEFAULT_HTTPS_ADDRESSES_KEY, defaultPropertiesLoader.getDefaultValue(DEFAULT_HTTPS_ADDRESSES_KEY));
+        String serverUrl = System.getProperty(SERVER_URL_key, defaultPropertiesLoader.getDefaultValue(SERVER_URL_key));
+        String adminUrl = System.getProperty(ADMIN_URL_KEY, defaultPropertiesLoader.getDefaultValue(ADMIN_URL_KEY));
+        String dev = System.getProperty(DEV_KEY, defaultPropertiesLoader.getDefaultValue(DEV_KEY));
+        String beta = System.getProperty(BETA_KEY, defaultPropertiesLoader.getDefaultValue(BETA_KEY));
+        String prod = System.getProperty(PROD_KEY, defaultPropertiesLoader.getDefaultValue(PROD_KEY));
+        String serverApp = System.getProperty(SERVERAPP_KEY, defaultPropertiesLoader.getDefaultValue(SERVERAPP_KEY));
+        boolean registerSelfOnStart = Boolean.valueOf(System.getProperty(REGISTER_SELF_ON_START_KEY, defaultPropertiesLoader.getDefaultValue(REGISTER_SELF_ON_START_KEY)));
 
-            logger.info("qconfig attributes, default addressed [{}], server url [{}], admin url [{}], " +
-                            "dev [{}], beta [{}], prod [{}], resources [{}], build group [{}], server app [{}], register self on start[{}]",
-                    defaultAddresses, serverUrl, adminUrl, dev, beta, prod, resources, buildGroup, serverApp, registerSelfOnStart);
+        logger.info("qconfig attributes, default addressed [{}], server url [{}], admin url [{}], " +
+                        "dev [{}], beta [{}], prod [{}], resources [{}], build group [{}], server app [{}], register self on start[{}]",
+                defaultAddresses, serverUrl, adminUrl, dev, beta, prod, resources, buildGroup, serverApp, registerSelfOnStart);
 
-            return new QConfigAttributes.Builder()
-                    .setDefaultAddresses(defaultAddresses)
-                    .setDefaultHttpsAddresses(defaultHttpsAddresses)
-                    .setServerUrl(serverUrl)
-                    .setAdminUrl(adminUrl)
-                    .setDev(dev)
-                    .setBeta(beta)
-                    .setProd(prod)
-                    .setResources(resources)
-                    .setBuildGroup(buildGroup)
-                    .setServerApp(serverApp)
-                    .setRegisterSelfOnStart(registerSelfOnStart)
-                    .build();
-        }
+        return new QConfigAttributes.Builder()
+                .setDefaultAddresses(defaultAddresses)
+                .setDefaultHttpsAddresses(defaultHttpsAddresses)
+                .setServerUrl(serverUrl)
+                .setAdminUrl(adminUrl)
+                .setDev(dev)
+                .setBeta(beta)
+                .setProd(prod)
+                .setResources(resources)
+                .setBuildGroup(buildGroup)
+                .setServerApp(serverApp)
+                .setRegisterSelfOnStart(registerSelfOnStart)
+                .build();
     });
 
     public static QConfigAttributes getInstance() {

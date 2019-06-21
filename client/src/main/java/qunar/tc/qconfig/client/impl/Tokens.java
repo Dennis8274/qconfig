@@ -10,18 +10,15 @@ import qunar.tc.qconfig.common.application.ServerManager;
  */
 class Tokens {
 
-    private static final Supplier<String> tokenSup = Suppliers.memoize(new Supplier<String>() {
-        @Override
-        public String get() {
-            ServerManagement serviceInstance = ServerManager.getInstance();
-            if (serviceInstance == null) {
-                throw new RuntimeException("请检测是否正确配置ServerManagement");
-        }
-            try {
-                return serviceInstance.getAppServerConfig().getToken();
-            } catch (Exception e) {
-                throw new RuntimeException("请检查是否在app-info中配置token");
-            }
+    private static final Supplier<String> tokenSup = Suppliers.memoize(() -> {
+        ServerManagement serviceInstance = ServerManager.getInstance();
+        if (serviceInstance == null) {
+            throw new RuntimeException("请检测是否正确配置ServerManagement");
+    }
+        try {
+            return serviceInstance.getAppServerConfig().getToken();
+        } catch (Exception e) {
+            throw new RuntimeException("请检查是否在app-info中配置token");
         }
     });
 

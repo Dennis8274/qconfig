@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import qunar.tc.qconfig.client.Configuration;
 import qunar.tc.qconfig.client.MapConfig;
 
 import javax.annotation.PostConstruct;
@@ -32,13 +31,10 @@ public class CustomEntryPointMappingServiceImpl implements CustomEntryPointMappi
     public void initCustomMapping() {
         final MapConfig config = MapConfig.get("custom_entrypoint_mapping.properties");
         config.asMap();
-        config.addListener(new Configuration.ConfigListener<Map<String, String>>() {
-            @Override
-            public void onLoad(Map<String, String> conf) {
-                if (conf != null) {
-                    entryPointMapping = buildEntryPointMapping(conf);
-                    LOG.info("load custom entry point mapping successOf. mapping={}", entryPointMapping);
-                }
+        config.addListener(conf -> {
+            if (conf != null) {
+                entryPointMapping = buildEntryPointMapping(conf);
+                LOG.info("load custom entry point mapping successOf. mapping={}", entryPointMapping);
             }
         });
     }

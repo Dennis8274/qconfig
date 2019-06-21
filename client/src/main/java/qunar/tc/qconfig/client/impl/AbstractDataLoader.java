@@ -27,19 +27,15 @@ import java.util.concurrent.atomic.AtomicReference;
 abstract class AbstractDataLoader implements DataLoader {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDataLoader.class);
 
-    private static final ConcurrentMap<Meta, Version> VERSIONS = new ConcurrentHashMap<Meta, Version>();
+    private static final ConcurrentMap<Meta, Version> VERSIONS = new ConcurrentHashMap<>();
 
-    private static final ConcurrentMap<String, FileStore> USED_CONFIGS = new ConcurrentHashMap<String, FileStore>();
+    private static final ConcurrentMap<String, FileStore> USED_CONFIGS = new ConcurrentHashMap<>();
 
     //qconfig的配置变更listener在这个线程池里执行
-    private static final Executor EXECUTOR = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory("qconfig-worker#"));
+    private static final Executor EXECUTOR = new ThreadPoolExecutor(1, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS
+            , new SynchronousQueue<>(), new NamedThreadFactory("qconfig-worker#"));
 
-    private static final LongPoller LONGPOLLER = new LongPoller(USED_CONFIGS, VERSIONS, new LongPoller.ConfigChangedCallback() {
-        @Override
-        public Optional<CountDownLatch> onChanged(Map<Meta, VersionProfile> map, TypedCheckResult changed) {
-            return loadIfUpdated(map, changed);
-        }
-    });
+    private static final LongPoller LONGPOLLER = new LongPoller(USED_CONFIGS, VERSIONS, AbstractDataLoader::loadIfUpdated);
 
     private static final QConfigServerClient CLIENT = QConfigServerClientFactory.create();
     private static final ConfigLogger CONFIG_LOGGER = new HttpConfigLogger(CLIENT);
@@ -61,7 +57,7 @@ abstract class AbstractDataLoader implements DataLoader {
         }
 
         try {
-            Optional<CountDownLatch> holder = checkUpdates(new HashMap<Meta, VersionProfile>(localVersions));
+            Optional<CountDownLatch> holder = checkUpdates(new HashMap<>(localVersions));
             if (!holder.isPresent()) return;
 
             CountDownLatch latch = holder.get();
@@ -186,6 +182,7 @@ abstract class AbstractDataLoader implements DataLoader {
         if (versionChanged) {
             FileStore store = USED_CONFIGS.get(meta.getKey());
             if (store != null)
+                // 版本变更，需要执行变更逻辑, 更新 .ver2 文件的一些版本信息， 以及更新文件内容(磁盘，内存)
                 versionChanged(store, snapshot);
         }
     }

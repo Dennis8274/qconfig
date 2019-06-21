@@ -35,7 +35,7 @@ public class EntryPointV2Servlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String result = getResult(req);
         resp.getWriter().write(result);
         resp.flushBuffer();

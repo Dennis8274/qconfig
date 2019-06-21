@@ -1,6 +1,9 @@
 package qunar.tc.qconfig.client;
 
 /**
+ *
+ * 配置文件的一些meta配置
+ *
  * @author miao.yang susing@gmail.com
  * @since 14-5-14.
  */

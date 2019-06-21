@@ -1,6 +1,5 @@
 package qunar.tc.qconfig.client.impl;
 
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -137,51 +136,48 @@ class QConfigEntryPoint {
         AsyncHttpClient.BoundRequestBuilder builder = HttpClientHolder.INSTANCE.prepareGet(ENTRY_POINT_URL_V2);
         builder.addHeader(Constants.TOKEN_NAME, Tokens.getToken());
         HttpListenableFuture<Response> future = HttpListenableFuture.wrap(HttpClientHolder.INSTANCE.executeRequest(builder.build()));
-        return Futures.transform(future, new Function<Response, String[][]>() {
-            @Override
-            public String[][] apply(Response input) {
-                try {
-                    if (input.getStatusCode() != HttpStatus.SC_OK) {
-                        logger.info("从entrypoint2获取serverlist失败, code [{}]", input.getStatusCode());
-                        return null;
-                    }
-
-                    LineReader reader = new LineReader(new StringReader(input.getResponseBody(Constants.UTF_8.name())));
-                    List<String> urls = Lists.newArrayList();
-                    String line;
-                    try {
-                        while ((line = reader.readLine()) != null) {
-                            urls.add(line);
-                        }
-                    } catch (IOException e) {
-                        //ignore
-                    }
-                    String httpServerUrlStr;
-                    String httpsServerUrlStr;
-
-                    if (!Strings.isNullOrEmpty(systemHttpServerUrls) && !Strings.isNullOrEmpty(systemHttpsServiceUrls)) {
-                        httpServerUrlStr = systemHttpServerUrls;
-                        httpsServerUrlStr = systemHttpsServiceUrls;
-                    } else {
-                        if (urls.size() > 1) {
-                            httpServerUrlStr = urls.get(0);
-                            httpsServerUrlStr = urls.get(1);
-                        } else {
-                            logger.warn("no qconfig server address find entrypoint2");
-                            return null;
-                        }
-                    }
-
-                    List<String> httpAddresses = Lists.newArrayList(COMMA_SPLITTER.split(httpServerUrlStr));
-                    List<String> httpsAddresses = Lists.newArrayList(COMMA_SPLITTER.split(httpsServerUrlStr));
-                    String[][] result = new String[URLS_ARRAY_LENGTH][];
-                    result[0] = httpAddresses.toArray(new String[httpAddresses.size()]);
-                    result[1] = httpsAddresses.toArray(new String[httpsAddresses.size()]);
-                    return result;
-                } catch (Exception e) {
-                    logger.info("从entrypoint2获取serverlist失败", e);
+        return Futures.transform(future, input -> {
+            try {
+                if (input.getStatusCode() != HttpStatus.SC_OK) {
+                    logger.info("从entrypoint2获取serverlist失败, code [{}]", input.getStatusCode());
                     return null;
                 }
+
+                LineReader reader = new LineReader(new StringReader(input.getResponseBody(Constants.UTF_8.name())));
+                List<String> urls = Lists.newArrayList();
+                String line;
+                try {
+                    while ((line = reader.readLine()) != null) {
+                        urls.add(line);
+                    }
+                } catch (IOException e) {
+                    //ignore
+                }
+                String httpServerUrlStr;
+                String httpsServerUrlStr;
+
+                if (!Strings.isNullOrEmpty(systemHttpServerUrls) && !Strings.isNullOrEmpty(systemHttpsServiceUrls)) {
+                    httpServerUrlStr = systemHttpServerUrls;
+                    httpsServerUrlStr = systemHttpsServiceUrls;
+                } else {
+                    if (urls.size() > 1) {
+                        httpServerUrlStr = urls.get(0);
+                        httpsServerUrlStr = urls.get(1);
+                    } else {
+                        logger.warn("no qconfig server address find entrypoint2");
+                        return null;
+                    }
+                }
+
+                List<String> httpAddresses = Lists.newArrayList(COMMA_SPLITTER.split(httpServerUrlStr));
+                List<String> httpsAddresses = Lists.newArrayList(COMMA_SPLITTER.split(httpsServerUrlStr));
+                String[][] result = new String[URLS_ARRAY_LENGTH][];
+                result[0] = httpAddresses.toArray(new String[httpAddresses.size()]);
+                result[1] = httpsAddresses.toArray(new String[httpsAddresses.size()]);
+                return result;
+            } catch (Exception e) {
+                logger.info("从entrypoint2获取serverlist失败", e);
+                return null;
             }
         }, MoreExecutors.directExecutor());
     }

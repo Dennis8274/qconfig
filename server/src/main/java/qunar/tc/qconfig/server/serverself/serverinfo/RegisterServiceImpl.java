@@ -5,13 +5,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import qunar.tc.qconfig.client.Configuration;
 import qunar.tc.qconfig.client.MapConfig;
-import qunar.tc.qconfig.client.spring.QMapConfig;
 import qunar.tc.qconfig.common.util.Environment;
 import qunar.tc.qconfig.server.serverself.eureka.QConfigServer;
 import qunar.tc.qconfig.server.serverself.eureka.ServerStore;
@@ -20,7 +17,7 @@ import qunar.tc.qconfig.server.support.context.ClientInfoService;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
+
 import java.util.Set;
 
 /**
@@ -47,15 +44,12 @@ public class RegisterServiceImpl implements RegisterService {
     private void init() {
         MapConfig mapConfig = MapConfig.get("config.properties");
         mapConfig.asMap();
-        mapConfig.addListener(new Configuration.ConfigListener<Map<String, String>>() {
-            @Override
-            public void onLoad(Map<String, String> conf) {
-                String testRoomsStr = conf.get("server.test.rooms");
-                if (!Strings.isNullOrEmpty(testRoomsStr)) {
-                    testRooms = ImmutableSet.copyOf(COMMA_SPLITTER.split(testRoomsStr));
-                } else {
-                    testRooms = ImmutableSet.of();
-                }
+        mapConfig.addListener(conf -> {
+            String testRoomsStr = conf.get("server.test.rooms");
+            if (!Strings.isNullOrEmpty(testRoomsStr)) {
+                testRooms = ImmutableSet.copyOf(COMMA_SPLITTER.split(testRoomsStr));
+            } else {
+                testRooms = ImmutableSet.of();
             }
         });
     }
@@ -72,10 +66,10 @@ public class RegisterServiceImpl implements RegisterService {
     }
 
     private Set<QConfigServer> selectServer(String room, CurrentServers servers) {
-        String tokenEnv = clientInfoService.getEnv();
-        if (Strings.isNullOrEmpty(room) && Strings.isNullOrEmpty(tokenEnv)) {
+        String env = clientInfoService.getEnv();
+        if (Strings.isNullOrEmpty(room) && Strings.isNullOrEmpty(env)) {
             return defaultServer();
-        } else if (useProdServer(room, tokenEnv)) {
+        } else if (useProdServer(room, env)) {
             return serversInPriority(room, getProdServers(servers));
         } else {
             return ImmutableSet.copyOf(getTestServer(servers).values());

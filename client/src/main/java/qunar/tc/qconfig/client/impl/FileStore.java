@@ -338,6 +338,7 @@ class FileStore<T> {
                             String content = Files.asCharSource(override, Charsets.UTF_8).read();
                             T data = conf.parse(content);
                             conf.setData(data);
+                            // memory
                             ConfigRepository.getInstance().saveOrUpdate(meta, oVersion.getVersion().getVersion(), content);
                             log.info("use override file, name={}, last modified={}", override.getName(), override.lastModified());
                             configLogger.log(ConfigLogType.USE_OVERRIDE, meta, 0);

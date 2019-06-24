@@ -49,7 +49,7 @@ abstract class AbstractDataLoader implements DataLoader {
      * 根据本地之前缓存的配置预加载
      */
     private static void preLoadLocal() {
-        //读取本地所有[版本文件]
+        //读取本地所有[版本文件] app/qconfig/profile/group
         final Map<Meta, VersionProfile> localVersions = FileStore.findAllFiles();
 
         for (Map.Entry<Meta, VersionProfile> entry : localVersions.entrySet()) {
@@ -92,6 +92,7 @@ abstract class AbstractDataLoader implements DataLoader {
         return loadIfUpdated(versions, remote);
     }
 
+    /*  */
     private static Optional<CountDownLatch> loadIfUpdated(Map<Meta, VersionProfile> versions, TypedCheckResult remote) {
         final CountDownLatch latch = new CountDownLatch(versions.size());
 
@@ -111,6 +112,7 @@ abstract class AbstractDataLoader implements DataLoader {
             return;
         }
 
+        // 如果需要更新，则更新
         if (localVersion.updated.get().needUpdate(remoteVersion)) {
             updateFile(fileMeta, remoteVersion, latch);
         } else {
@@ -144,7 +146,7 @@ abstract class AbstractDataLoader implements DataLoader {
                     try {
                         FileStore.storeData(meta, newVersion, snapshot);
                     } catch (Throwable e) {
-                        LOG.warn("缓存配置到本地磁盘失败", meta);
+                        LOG.warn("缓存配置到本地磁盘失败, {}", meta);
                         latch.countDown();
                         return;
                     }
